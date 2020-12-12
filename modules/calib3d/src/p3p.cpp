@@ -320,8 +320,8 @@ bool p3p::align(double M_end[3][3],
 {
     // Centroids:
     double C_start[3] = {}, C_end[3] = {};
-    for(int i = 0; i < 3; i++) C_end[i] = (M_end[0][i] + M_end[1][i] + M_end[2][i]) / 3;
-    C_start[0] = (X0 + X1 + X2) / 3;
+    for(int i = 0; i < 3; i++) C_end[i] = (M_end[0][i] + M_end[1][i] + M_end[2][i]) / 3; // 三个特征点在相机坐标系下的几何中心
+    C_start[0] = (X0 + X1 + X2) / 3;  // 三个特征点在世界坐标系下的几何中心
     C_start[1] = (Y0 + Y1 + Y2) / 3;
     C_start[2] = (Z0 + Z1 + Z2) / 3;
 
@@ -350,7 +350,7 @@ bool p3p::align(double M_end[3][3],
     jacobi_4x4(Qs, evs, U);
 
     // Looking for the largest eigen value:
-    int i_ev = 0;
+    int i_ev = 0;  // evs：四元数的特征值矩阵；ev_max：最大的特征值；i_ev最大的特征值所对应的索引
     double ev_max = evs[i_ev];
     for(int i = 1; i < 4; i++)
         if (evs[i] > ev_max)
@@ -359,14 +359,14 @@ bool p3p::align(double M_end[3][3],
     // Quaternion:
     double q[4];
     for(int i = 0; i < 4; i++)
-        q[i] = U[i * 4 + i_ev];
+        q[i] = U[i * 4 + i_ev];  // 取Q矩阵最大的特征值所对应的特征向量
 
     double q02 = q[0] * q[0], q12 = q[1] * q[1], q22 = q[2] * q[2], q32 = q[3] * q[3];
     double q0_1 = q[0] * q[1], q0_2 = q[0] * q[2], q0_3 = q[0] * q[3];
     double q1_2 = q[1] * q[2], q1_3 = q[1] * q[3];
     double q2_3 = q[2] * q[3];
 
-    R[0][0] = q02 + q12 - q22 - q32;
+    R[0][0] = q02 + q12 - q22 - q32;  // 将四元数转化为姿态变换矩阵
     R[0][1] = 2. * (q1_2 - q0_3);
     R[0][2] = 2. * (q1_3 + q0_2);
 
@@ -379,7 +379,7 @@ bool p3p::align(double M_end[3][3],
     R[2][2] = q02 + q32 - q12 - q22;
 
     for(int i = 0; i < 3; i++)
-        T[i] = C_end[i] - (R[i][0] * C_start[0] + R[i][1] * C_start[1] + R[i][2] * C_start[2]);
+        T[i] = C_end[i] - (R[i][0] * C_start[0] + R[i][1] * C_start[1] + R[i][2] * C_start[2]);  // T = C_cam - R * C_world
 
     return true;
 }
